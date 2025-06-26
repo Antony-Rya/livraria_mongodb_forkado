@@ -3,12 +3,13 @@ from pymongo import MongoClient
 from bson.decimal128 import Decimal128
 from decimal import Decimal
 import os
+from os import path
 from datetime import datetime
 from dotenv import load_dotenv
 
 load_dotenv()
 
-json_path = os.Path("banco").joinpath("livros.json")
+json_path = path.join("banco", "livros.json")
 with open(json_path, "r", encoding="utf-8") as file:
     livros = json.load(file)
 
