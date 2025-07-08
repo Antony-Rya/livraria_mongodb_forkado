@@ -58,8 +58,12 @@ class Livro:
         :param id_livro: ID do livro (string ou ObjectId)
         :return: Dicionário com os dados do livro ou None.
         """
-        livro_achado = livros.find({'_id': id_livro})
-        return livro_achado
+        try:
+            id_livro = ObjectId(id_livro)
+        except Exception:
+            return None  # ID inválido
+        return livros.find_one({'_id': id_livro})
+    
 
     @staticmethod
     def buscar_todos():
