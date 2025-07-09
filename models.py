@@ -1,7 +1,9 @@
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 import os
-
+from bson.decimal128 import Decimal128
+from decimal import Decimal
+from datetime import datetime
 # ===========================
 # Configuração da conexão com o MongoDB Atlas
 # ===========================
@@ -48,8 +50,22 @@ class Livro:
         Salva o livro no banco de dados.
         :return: ID do livro inserido.
         """
-        # Todo
-        pass
+        livro_dicionario = {
+            "titulo": self.titulo,
+            "preco": Decimal128(Decimal(self.preco)),
+            "categoria": self.categoria,
+            "tags": self.tags,
+            "autores": self.autores,
+            "mais_recente_edicao": self.mais_recente_edicao,
+            "numero_autores": self.numero_autores,
+            "data_publicacao": datetime.strptime(self.data_publicacao, "%Y-%m-%d"),
+            "editora": self.editora,
+            "descricao": self.descricao,
+            "isbn": self.isbn,
+            "estoque": self.estoque,
+            "imagem_capa": self.imagem_capa
+        }
+        return str(livros.insert_one(livro_dicionario).inserted_id)
 
     @staticmethod
     def buscar_por_id(id_livro):
@@ -58,10 +74,6 @@ class Livro:
         :param id_livro: ID do livro (string ou ObjectId)
         :return: Dicionário com os dados do livro ou None.
         """
-        try:
-            id_livro = ObjectId(id_livro)
-        except Exception:
-            return None  # ID inválido
         return livros.find_one({'_id': id_livro})
     
 
@@ -71,8 +83,7 @@ class Livro:
         Retorna todos os livros cadastrados.
         :return: Lista de livros.
         """
-        # Todo
-        pass
+        return list(livros.find())
     
     @staticmethod
     def buscar_livros(filtros=None, pagina=1, por_pagina=12):
@@ -92,8 +103,7 @@ class Livro:
         Retorna todas as categorias disponíveis no acervo.
         :return: Lista de categorias.
         """
-        # Todo
-        pass
+        return livros.distinct('categoria')
 
     @staticmethod
     def tags_disponiveis():
@@ -101,8 +111,7 @@ class Livro:
         Retorna todas as categorias disponíveis no acervo.
         :return: Lista de categorias.
         """
-        # Todo
-        pass
+        return livros.distinct('tags')
 
 class Usuario:
     """
@@ -125,8 +134,12 @@ class Usuario:
         Salva o usuário no banco de dados.
         :return: ID do usuário inserido.
         """
-        # Todo
-        pass
+        usuario_dicionario = {
+            "nome": self.nome,
+            "email": self.email,
+            "senha": self.senha
+        }
+        return str(usuarios.insert_one(usuario_dicionario).inserted_id)
 
     @staticmethod
     def buscar_por_email(email):
@@ -135,8 +148,7 @@ class Usuario:
         :param email: E-mail do usuário.
         :return: Dicionário com os dados do usuário ou None.
         """
-        # Todo
-        pass
+        return usuarios.find_one({'email': email})
 
     @staticmethod
     def buscar_por_id(id_usuario):
@@ -145,8 +157,7 @@ class Usuario:
         :param id_usuario: ID do usuário (string ou ObjectId).
         :return: Dicionário com os dados do usuário ou None.
         """
-        # Todo
-        pass
+        return usuarios.find_one({'_id': id_usuario})
 
 # ===========================
 # Classe Pedido
@@ -177,8 +188,14 @@ class Pedido:
         Salva o pedido no banco de dados.
         :return: ID do pedido inserido.
         """
-        # Todo
-        pass
+        pedido_dicionario = {
+            "id_usuario": self.id_usuario,
+            "livros": self.livros,
+            "data": self.data,
+            "total": self.total,
+            "status": self.status,
+        }
+        return str(pedidos.insert_one(pedido_dicionario).inserted_id)
 
     @staticmethod
     def buscar_por_usuario(id_usuario):
@@ -187,8 +204,8 @@ class Pedido:
         :param id_usuario: ID do usuário.
         :return: Lista de pedidos.
         """
-        # Todo
-        pass
+        pedidos_usuario = list(pedidos.find({'usuario_id': id_usuario}))
+        return pedidos_usuario
 
     @staticmethod
     def buscar_por_id(id_pedido):
@@ -197,5 +214,4 @@ class Pedido:
         :param id_pedido: ID do pedido (string ou ObjectId).
         :return: Dicionário com os dados do pedido ou None.
         """
-        # Todo
-        pass
+        return pedidos.find_one({'_id': id_pedido})
