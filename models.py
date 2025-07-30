@@ -204,7 +204,7 @@ class Pedido:
         :param id_usuario: ID do usuário.
         :return: Lista de pedidos.
         """
-        pedidos_usuario = list(pedidos.find({'usuario_id': id_usuario}))
+        pedidos_usuario = list(pedidos.find({'id_usuario': id_usuario}))
         return pedidos_usuario
 
     @staticmethod
