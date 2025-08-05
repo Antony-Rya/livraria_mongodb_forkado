@@ -94,8 +94,38 @@ class Livro:
         :param por_pagina: Quantidade de livros por página.
         :return: (Lista de livros, total de livros encontrados)
         """
-        # Todo
-        pass
+        query = {}
+
+        if filtros:
+            if 'titulo' in filtros:
+                query["titulo"] = {"$regex": filtros["titulo"], "$options": "i"}
+            if 'tags' in filtros:
+                tags = filtros["tags"]
+                query["tags"] = {"$in": tags if isinstance(tags, list) else [tags]}
+
+            if 'categoria' in filtros:
+                query["categoria"] = filtros["categoria"]
+
+            preco = {}
+            if "preco_min" in filtros:
+                preco["$gte"] = Decimal128(Decimal(filtros["preco_min"]))
+            if "preco_max" in filtros:
+                preco["$lte"] = Decimal128(Decimal(filtros["preco_max"]))
+            if preco:
+                query["preco"] = preco
+
+        skip = (pagina -1) * por_pagina
+        cursor = livros.find(query).skip(skip).limit(por_pagina)
+        total = livros.count_documents(query)
+
+        lista_livros = []
+        for livro in cursor:
+            livro["_id"] = str(livro["_id"])
+            if "preco" in livro and isinstance(livro["preco"], Decimal128):
+                livro["preco"] = float(livro["preco"].to_decimal())
+            lista_livros.append(livro)
+
+        return lista_livros, total
 
     @staticmethod
     def categorias_disponiveis():
